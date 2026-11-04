@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="ru-RU">
+    <head>
+        <title>Мафия-онлайн</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <meta charset="UTF-8" />
+        <script src="js/jquery-4.0.0.min.js"></script>
+        <script src="js/config.js"></script>
+        <script src="js/fnc.js"></script>
+        <link id="lcss" rel="stylesheet" href="css/style_small.css" type="text/css" media="all" />
+    </head>
+    <!--
+	Версия 3.2
+	Модификация для "Gold Mafia Online": Павел Сысоев ( pashulik@mail.ru )
+	Первочальный автор скрипта (исключая jquery): Анатолий Веснин - avesnin.ru ( http://habrahabr.ru/users/avesnin ) 
+	!-->
+    <body>
+        <ul id="tabs">
+            <li><a href="#" title="tab1">Игра</a></li>
+            <li><a href="#" title="tab2">Информация</a></li>
+            <li><a href="#" title="tab3">Настройки</a></li>
+        </ul>
+
+        <div id="content">
+            <div id="tab1">
+                <div id="dGameBtns">
+                    <input id="btnGamerAdd" type="button" value="+" title="Добавить игрока" />
+                    <input id="btnSpreadRoles" type="button" value="Раздать" title="Раздать роли" disabled />
+                    <input id="btnBegin" type="button" value="Начать" title="Начать игру" disabled />
+                    <input id="btnReset" type="button" value="Заново" title="Заново начать игру" disabled />
+                </div>
+                <div id="dInfo">&nbsp;</div>
+                <div id="cover" class="clear table left">
+                    <div class="tr" id="tr0">
+                        <div class="th clNums"></div>
+                        <div class="th clNames"></div>
+                        <div class="th clRoles"></div>
+                    </div>
+                </div>
+                <div id="dBtnRounds">&nbsp;</div>
+                <div id="dDebug">&nbsp;</div>
+            </div>
+
+            <div id="tab2">
+                <div>
+                    <h3>Обозначения</h3>
+                    <ol>
+                        <strong>❢&nbsp;</strong>
+                        - фол (предупреждение) игроку<br />
+                        <strong>✔</strong>
+                        - проверка шерифом<br />
+                        <strong>✚</strong>
+                        - лечение доктором<br />
+                        <strong>✘</strong>
+                        - убийство мафией<br />
+                        <strong>M</strong>
+                        - убийство маньяком<br />
+                        ❤ - очарование красоткой<br />
+                        <strong>В</strong>
+                        - вор украл роль<br />
+                        <strong>&#9760;</strong>
+                        - взрыв со смертником<br />
+                        <strong>✕</strong>
+                        - расстрел (казнь, убийство) днём<br />
+                        💥 - взрыв шахида<br />
+                        ⚡ - смерть от взрыва шахида<br /><br />
+                    </ol>
+                    <h3>Описание ролей</h3>
+                    <ol>
+                        <strong>МИРНЫЙ</strong>
+                        - обыватель, обычный мирный житель. Ночью спит. Мирные выигрывают, когда вся мафия мертва.
+                        <br /><br />
+                        <strong>МАФИЯ</strong>
+                        - подручные Дона мафии, противники мирных. Убивают ночью одного из игроков. Выигрывают, когда
+                        количество мафии (включая Дона) сравнивается с количеством мирных.
+                        <br /><br />
+                        <strong>ДОН</strong>
+                        - главарь мафиозной группировки. Принимает окончательное решение и сообщает номер убитого игрока
+                        Ведущему в чате. После этого (только при нечётном количестве игроков в игре) ищет Шерифа,
+                        запрашивая у Ведущего роль игрока. После убийства Дона, ведущему пишет любой игрок с ролью
+                        Мафия.
+                        <br /><br />
+                        <strong>ШЕРИФ</strong>
+                        (Комиссар) - мирный житель. Ночью запрашивает у Ведущего в чате роль одного из игроков (мирный
+                        или мафия без подробностей).
+                        <br /><br />
+                        <strong>ДОКТОР</strong>
+                        - мирный житель. Лечит любого игрока ночью на свое усмотрение, но нельзя лечить одного и того же
+                        игрока две ночи подряд (через раз можно). Также доктор может лечить самого себя, но всего один
+                        раз за игру.
+                        <br /><br />
+                        <strong>БЕССМЕРТНЫЙ</strong>
+                        - мирный житель. Ночью спит. Мафия не может убить его ночью, кроме того случая, когда вор
+                        «украл» его роль. Однако он может взорваться вместе с Шахидом, его может убить ночью Маньяк, а
+                        также его могут казнить днём.
+                        <br /><br />
+                        <strong>МАНЬЯК</strong>
+                        - играет за мирных жителей. Ночью убивает одного игрока, стараясь найти мафию. Самоубиться
+                        маньяк не может.
+                        <br /><br />
+                        <strong>ВОР</strong>
+                        - играет за мирных жителей. Ночью указывает игрока, у которого ворует роль. Этот игрок не знает,
+                        что его роль своровали и выполняет своё действие, но это не будет иметь значения. Чтобы мафия не
+                        смогла убить, роль должна быть украдена именно у Дона. Если вор крадёт роль Бессмертного, то на эту
+                        ночь он сам того не зная становится бессмертным и не может быть убит мафией. Если же Вор украл 
+						роль у Шахида, то он при убийстве не взрывает вместе с собой соседних игроков, а погибает один, 
+						как обычный игрок. Нельзя воровать роль у одного и того же игрока две ночи подряд.
+                        <br /><br />
+                        <strong>КРАСОТКА</strong>
+                        - мирный житель. Ночью указывает игрока, которого будет спасать от мафии. Если мафия пытается
+                        убить этого игрока, то он не умирает. Если мафия убивает Красотку, то умирает и спасаемый ею
+                        игрок. Нельзя ходить к одному и тому же игроку две ночи подряд.
+                        <br /><br />
+                        <strong>СМЕРТНИК</strong>
+                        - играет за мирных жителей. Ночью спит. Днём до голосования имеет право по своему желанию
+                        взорвать любого игрока вместе с собой. При его казни днём также может забрать с собой одного
+                        игрока. Если его убивают ночью, то он погибает один.
+                        <br /><br />
+                        <strong>ШАХИД</strong>
+                        - играет за мирных жителей. Если его убивают, то вместе с ним погибают два соседних по номерам
+                        игрока (первый и последний номера рядом), если они ещё в игре.
+                        <br /><br />
+                    </ol>
+
+                    &nbsp;ℹ️
+                    <i>Роли назначаются игрокам случайным образом и присылаются Ведущим каждому участнику в личном
+                        сообщении Zoom. Мафиози также получают номера всех остальных игроков мафиозной группировки с
+                        указанием кто Дон.
+					</i> 
+					<br /><br />
+
+                    <h4>Количество мафии (включая Дона) при общей численности игроков</h4>
+                    <ol>
+                        • &nbsp;&nbsp;<strong>6</strong>
+                        игроков — 1 мафия;<br />
+                        • &nbsp;&nbsp;<strong>7</strong>
+                        игроков — 2 мафии (мафия в первую ночь только ищет шерифа и не убивает, в последующие ночи
+                        только убивает);<br />
+                        • &nbsp;&nbsp;<strong>8-9</strong>
+                        игроков — 2 мафии;<br />
+                        • &nbsp;&nbsp;<strong>10-11</strong>
+                        игроков — 3 мафии;<br />
+                        • &nbsp;&nbsp;<strong>12-14</strong>
+                        игроков — 4 мафии;<br />
+                        • &nbsp;&nbsp;<strong>15-16</strong>
+                        игроков — 5 мафии.<br /><br />
+                    </ol>
+
+                    <h3>Наши правила игры в Мафию-онлайн</h3>
+                    <ol>
+                        <!--1-->
+                        <li>
+                            Мы играем в закрытую Мафию - это значит, что каждый игрок во время своей речи может
+                            вскрыться под любой ролью, которая присутствует в текущей игре.
+                        </li>
+                        <br />
+                        <!--2-->
+                        <li>
+                            Игра взакрытую дает право мафии убить одного из своих (самоубиться) или не убивать никого.
+                        </li>
+                        <br />
+                        <!--3-->
+                        <li>
+                            Время речи каждого игрока - не более 1 минуты, за это время необходимо успеть сообщить номер
+                            игрока, выдвигаемого на голосование. После срабатывания таймера или сообщения ведущего о
+                            том, что время закончилось, нужно незамедлительно прекратить монолог и выключить свой
+                            микрофон.
+                        </li>
+                        <br />
+                        <!--4-->
+                        <li>
+                            Игрок, который говорит первым после ночи, имеет право перед голосованием на дополнительное
+                            слово (не более 30 секунд). Выдвинуть игрока на голосование он может только в свою первую
+                            речь.
+                        </li>
+                        <br />
+                        <!--5-->
+                        <li>Запрещено перебивать говорящего! Жестикулировать при этом можно сколько угодно.</li>
+                        <br />
+                        <!--6-->
+                        <li>
+                            Игрок может не выдвигать на голосование никого во время своей речи, но обязан отдать свой
+                            голос против одного из выставленных игроков на общем голосовании. Если кто-то не проголосовал, 
+							то его голос уходит против последнего выдвинутого на голосование игрока.
+                        </li>
+                        <br />
+                        <!--7-->
+                        <li>
+                            Если на голосование выдвинуто менее двух игроков, то голосование не состоится и все остаются
+                            живы.
+                        </li>
+                        <br />
+                        <!--8-->
+                        <li>Днём из игры выбывает тот, против кого проголосовало большинство.</li>
+                        <br />
+                        <!--9-->
+                        <li>
+                            Если на голосовании несколько игроков получили одинаковое количество голосов, то им
+                            предоставляется дополнительное слово (не более 30 секунд), после чего происходит повторное
+                            голосование. Выставленные на голосование игроки не имеют права голоса при повторном
+                            голосовании. Если по результатам переголосования номинированные игроки опять набирают
+                            голосов поровну, то они остаются в игре.
+                        </li>
+                        <br />
+                        <!--10-->
+                        <li>
+                            Убитый игрок после последнего слова (не более 30 секунд) самостоятельно выключает свой звук
+                            и видео и до конца игры больше не включает их, а также не пользуется чатом и реакциями в
+                            Zoom.
+                        </li>
+                        <br />
+                        <!--11-->
+                        <li>Убитый игрок не должен вмешиваться или как-то влиять на ход игры.</li>
+                        <br />
+                        <!--12-->
+                        <li>
+                            Спящие ночью игроки не включают свой звук и видео до тех пор, пока Ведущий не попросит их
+                            проснуться.
+                        </li>
+                        <br />
+                        <!--13-->
+                        <li>
+                            Чат в Zoom предназначен только для ночной переписки мафии между собой, а также для переписки
+                            Ведущего с доном, шерифом, доктором, маньяком, красоткой и вором.
+                        </li>
+                        <br />
+                        <!--14-->
+                        <li>Сообщения ВСЕМ в чате Zoom во время игры запрещены!</li>
+                        <br />
+                        <!--15-->
+                        <li>
+                            Первый зашедший по ссылке в Zoom получает иммунитет на первую игру - этого игрока в первую
+                            ночь не могут убить или проверить, но он может взорваться вместе с Шахидом.
+                        </li>
+                        <br />
+                        <!--16-->
+                        <li>Первый убитый в игре получает иммунитет на следующую игру.</li>
+                        <br />
+                        <!--17-->
+                        <li>
+                            Если опоздавший игрок заходит в Zoom и видит, что игра уже идёт, он отключает свой звук и
+                            видео и ожидает начала новой игры.
+                        </li>
+                        <br />
+                        <!--18-->
+                        <li>
+                            Запрещённые слова и их вариации: "100%", "клянусь" и тп. Нельзя вообще что-либо обещать или
+                            просить пообещать. Мат разрешён в разумных пределах.
+                        </li>
+                        <br />
+                        <!--19-->
+                        <li>
+                            Категорически запрещено оскорблять, хамить, грубить и "наезжать" на других игроков и
+                            Ведущего!
+                        </li>
+                        <br />
+                        <!--20-->
+                        <li>
+                            Запрещено спорить с Ведущим. При любой спорной ситуации в игре окончательное решение всегда
+                            остаётся за Ведущим!
+                        </li>
+                        <br />
+                        <!--21-->
+                        <li>
+                            Участник с игровой картой не обязан исполнять своё ночное действие и может отказаться от
+                            него, сообщив об этом Ведущему. Исключением является Шахид - его подрыв не зависит от
+                            собственных желаний.
+                        </li>
+                        <br />
+                        <!--22-->
+                        <li>
+                            За каждое нарушение правил игрок получает фол (предупреждение). Фолы накопительные и
+                            действуют одну игру. Всего игрок может набрать до 5 фолов включительно:
+                            <br />
+                            • &nbsp;&nbsp;1 фол — предупреждение;<br />
+                            • &nbsp;&nbsp;2 фол — предупреждение;<br />
+                            • &nbsp;&nbsp;3 фол — игрок лишается права говорить днём;<br />
+                            • &nbsp;&nbsp;4 фол — игрок лишается права голосовать, собственный голос аннулируется и не
+                            идёт против себя;<br />
+                            • &nbsp;&nbsp;5 фол — игрок покидает текущую игру без права последнего слова.
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="tab3">
+                <div style="padding: 10px">
+                    <h3 style="margin-top: 10px">Настройки ролей</h3>
+                    <p style="color: #666; margin-bottom: 10px">
+                        Отметьте роли, которые будут участвовать в игре и укажите минимальное количество игроков для
+                        каждой роли:
+                    </p>
+
+                    <div style="margin-bottom: 15px; background: #f9f9f9; padding: 15px 15px 5px 15px; border-radius: 5px; border: 1px solid #ddd;">
+                        <table style="width: 100%; border-collapse: collapse">
+                            <tr style="border-bottom: 1px solid #ddd">
+                                <th style="text-align: left; padding: 8px">Роль</th>
+                                <th style="text-align: center; padding: 8px">Участвует</th>
+                                <th style="text-align: center; padding: 8px">Минимум игроков</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px">Дон</td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input type="checkbox" id="rolePlay3" checked />
+                                </td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input
+                                        type="number"
+                                        id="roleMin3"
+                                        min="1"
+                                        max="30"
+                                        value="7"
+                                        style="width: 60px; text-align: center"
+                                    />
+                                </td>
+                            </tr>
+                            <tr style="background: #f0f0f0">
+                                <td style="padding: 8px">Шериф</td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input type="checkbox" id="rolePlay4" checked />
+                                </td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input
+                                        type="number"
+                                        id="roleMin4"
+                                        min="1"
+                                        max="30"
+                                        value="7"
+                                        style="width: 60px; text-align: center"
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px">Доктор</td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input type="checkbox" id="rolePlay5" checked />
+                                </td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input
+                                        type="number"
+                                        id="roleMin5"
+                                        min="1"
+                                        max="30"
+                                        value="6"
+                                        style="width: 60px; text-align: center"
+                                    />
+                                </td>
+                            </tr>
+                            <tr style="background: #f0f0f0">
+                                <td style="padding: 8px">Красотка</td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input type="checkbox" id="rolePlay6" />
+                                </td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input
+                                        type="number"
+                                        id="roleMin6"
+                                        min="1"
+                                        max="30"
+                                        value="7"
+                                        style="width: 60px; text-align: center"
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px">Маньяк</td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input type="checkbox" id="rolePlay7" checked />
+                                </td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input
+                                        type="number"
+                                        id="roleMin7"
+                                        min="1"
+                                        max="30"
+                                        value="12"
+                                        style="width: 60px; text-align: center"
+                                    />
+                                </td>
+                            </tr>
+                            <tr style="background: #f0f0f0">
+                                <td style="padding: 8px">Бессмертный</td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input type="checkbox" id="rolePlay8" />
+                                </td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input
+                                        type="number"
+                                        id="roleMin8"
+                                        min="1"
+                                        max="30"
+                                        value="7"
+                                        style="width: 60px; text-align: center"
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px">Вор</td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input type="checkbox" id="rolePlay9" checked />
+                                </td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input
+                                        type="number"
+                                        id="roleMin9"
+                                        min="1"
+                                        max="30"
+                                        value="11"
+                                        style="width: 60px; text-align: center"
+                                    />
+                                </td>
+                            </tr>
+                            <tr style="background: #f0f0f0">
+                                <td style="padding: 8px">Смертник</td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input type="checkbox" id="rolePlay10" />
+                                </td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input
+                                        type="number"
+                                        id="roleMin10"
+                                        min="1"
+                                        max="30"
+                                        value="15"
+                                        style="width: 60px; text-align: center"
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px">Шахид</td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input type="checkbox" id="rolePlay11" checked />
+                                </td>
+                                <td style="text-align: center; padding: 0px">
+                                    <input
+                                        type="number"
+                                        id="roleMin11"
+                                        min="1"
+                                        max="30"
+                                        value="15"
+                                        style="width: 60px; text-align: center"
+                                    />
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div style="margin-top: 15px; text-align: left">
+                            <button
+                                onclick="saveRoleSettings()"
+                                style="
+                                    padding: 8px 20px;
+                                    background: #4caf50;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 3px;
+                                    cursor: pointer;
+									margin-right: 10px;
+									margin-bottom: 10px;
+                                "
+                            >
+                                Сохранить настройки ролей
+                            </button>
+
+                            <button
+                                onclick="resetRoleSettings()"
+                                style="
+                                    padding: 8px 20px;
+                                    background: #ff9800;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 3px;
+                                    cursor: pointer;
+                                "
+                            >
+                                Сбросить
+                            </button>
+							
+                        </div>
+                    </div>
+                    <div style="font-size: 11px; color: #999; margin-left: 15px; margin-top: 20px">
+                        <strong>Примечание:</strong> Мирные жители и Мафия всегда участвуют в игре. Роли раздаются
+                        только при достижении указанного минимального количества игроков.
+                    </div>
+
+                    <br /><br />
+                    <h3>Настройки фолов</h3>
+                    <div style="margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #ddd; ">
+                        <!-- Строка 1: Фолы днём -->
+                        <div style="display: flex; flex-wrap: wrap; align-items: flex-start; padding: 8px 0; gap: 10px">
+                            <div style="width: 260px; max-width: 100%; padding: 4px 0">
+                                <strong>Использовать фолы днём:</strong>
+                            </div>
+                            <div style="flex: 1; min-width: 330px; display: flex; align-items: flex-start; gap: 8px">
+                                <input
+                                    type="checkbox"
+                                    id="useFoulsNight"
+                                    checked
+                                    style="width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; margin-top: 3px"
+                                />
+                                <span style="color: #555; line-height: 2"
+                                    >(включает кнопки фолов в дневные раунды)</span
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Строка 2: Фолы ночью -->
+                        <div
+                            style="
+                                display: flex;
+                                flex-wrap: wrap;
+                                align-items: flex-start;
+                                padding: 8px 0;
+                                background: #f0f0f0;
+                                margin: 5px 0;
+                                border-radius: 3px;
+                                gap: 10px;
+                            "
+                        >
+                            <div style="width: 260px; max-width: 100%; padding: 4px 0">
+                                <strong>Использовать фолы ночью:</strong>
+                            </div>
+                            <div style="flex: 1; min-width: 330px; display: flex; align-items: flex-start; gap: 8px">
+                                <input
+                                    type="checkbox"
+                                    id="useFoulsDay"
+                                    style="width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; margin-top: 3px"
+                                />
+                                <span style="color: #555; line-height: 2">(включает кнопки фолов в ночные раунды)</span>
+                            </div>
+                        </div>
+
+                        <!-- Строка 3: Количество фолов -->
+                        <div style="display: flex; flex-wrap: wrap; align-items: flex-start; padding: 8px 0; gap: 10px">
+                            <div style="width: 260px; max-width: 100%; padding: 4px 0">
+                                <strong>Количество фолов для выбывания:</strong>
+                            </div>
+                            <div style="flex: 1; min-width: 330px; display: flex; align-items: flex-start; gap: 8px">
+                                <input
+                                    type="number"
+                                    id="maxFoul"
+                                    min="1"
+                                    max="10"
+                                    value="5"
+                                    style="width: 50px; padding: 5px; text-align: center; flex-shrink: 0"
+                                />
+                                <span style="color: #555; line-height: 2"
+                                    >(при достижении данного количества фолов игрок выбывает из текущей игры)</span
+                                >
+                            </div>
+                        </div>
+                    
+                    <div style="margin-top: 15px; text-align: left">
+                        <button
+                            onclick="saveFoulSettings()"
+                            style="
+                                padding: 8px 20px;
+                                background: #4caf50;
+                                color: white;
+                                border: none;
+                                border-radius: 3px;
+                                cursor: pointer;
+                                margin-right: 10px;
+                            "
+                        >
+                            Сохранить настройки фолов
+                        </button>
+                        <!-- <button onclick="resetFoulSettings()" style="padding:8px 20px; background:#f44336; color:white; border:none; border-radius:3px; cursor:pointer;">Сбросить</button> !-->
+                    </div>
+					
+					</div>
+                </div>
+
+            <!--		
+			<br /><br />
+			<h3>Настройки отображения</h3>
+			<div style="margin-bottom:20px;">
+				<select id="sCSS">
+					<option value="style_big.css">Крупно</option>
+					<option value="style_small.css">Мелко</option>
+				</select>
+				<input type="button" onclick="loadCSS();" value="Загрузить CSS" />
+			</div>
+			-->
+
+			<br />
+			<h3 style="margin-left: 10px">Настройки таймеров</h3>
+			<div style="margin:10px; background:#f9f9f9; padding:15px; border-radius:5px; border:1px solid #ddd;">
+				<table style="width:100%; border-collapse:collapse;">
+					<tr style="border-bottom:1px solid #ccc;">
+						<th style="text-align:left; padding:8px;">Параметр</th>
+						<th style="text-align:center; padding:8px;">Таймер 1</th>
+						<th style="text-align:center; padding:8px;">Таймер 2</th>
+					</tr>
+					<tr style="background:#f0f0f0;">
+						<td style="padding:8px;">Включить звук</td>
+						<td style="text-align:center;"><input type="checkbox" id="timer1Enable" checked></td>
+						<td style="text-align:center;"><input type="checkbox" id="timer2Enable" checked></td>
+					</tr>
+					<tr style="background:#f0f0f0;">
+						<td style="padding:8px;">Время до окончания (сек)</td>
+						<td style="text-align:center;"><input type="number" id="timer1Duration" min="10" max="300" value="60" style="width:80px;"></td>
+						<td style="text-align:center;"><input type="number" id="timer2Duration" min="10" max="300" value="30" style="width:80px;"></td>
+					</tr>
+					<tr>
+						<td style="padding:8px;">Короткий сигнал – длительность (сек)</td>
+						<td style="text-align:center;"><input type="number" id="timer1BeepDur" step="0.1" min="0.1" max="2" value="0.5" style="width:80px;"></td>
+						<td style="text-align:center;"><input type="number" id="timer2BeepDur" step="0.1" min="0.1" max="2" value="0.5" style="width:80px;"></td>
+					</tr>
+					<tr>
+						<td style="padding:8px;">Короткий сигнал – частота (Гц)</td>
+						<td style="text-align:center;"><input type="number" id="timer1BeepFreq" min="200" max="4000" value="600" style="width:80px;"></td>
+						<td style="text-align:center;"><input type="number" id="timer2BeepFreq" min="200" max="4000" value="600" style="width:80px;"></td>
+					</tr>
+					<tr>
+						<td style="padding:8px;">Короткий сигнал – громкость (0–1)</td>
+						<td style="text-align:center;"><input type="number" id="timer1BeepVol" step="0.1" min="0" max="1" value="0.8" style="width:80px;"></td>
+						<td style="text-align:center;"><input type="number" id="timer2BeepVol" step="0.1" min="0" max="1" value="0.8" style="width:80px;"></td>
+					</tr>
+					<tr style="background:#f0f0f0;">
+						<td style="padding:8px;">Финальный сигнал – длительность (сек)</td>
+						<td style="text-align:center;"><input type="number" id="timer1AlarmDur" step="0.5" min="0.5" max="5" value="1.5" style="width:80px;"></td>
+						<td style="text-align:center;"><input type="number" id="timer2AlarmDur" step="0.5" min="0.5" max="5" value="1.5" style="width:80px;"></td>
+					</tr>
+					<tr style="background:#f0f0f0;">
+						<td style="padding:8px;">Финальный сигнал – частота (Гц)</td>
+						<td style="text-align:center;"><input type="number" id="timer1AlarmFreq" min="200" max="4000" value="1200" style="width:80px;"></td>
+						<td style="text-align:center;"><input type="number" id="timer2AlarmFreq" min="200" max="4000" value="1200" style="width:80px;"></td>
+					</tr>
+					<tr style="background:#f0f0f0;">
+						<td style="padding:8px;">Финальный сигнал – громкость (0–1)</td>
+						<td style="text-align:center;"><input type="number" id="timer1AlarmVol" step="0.1" min="0" max="1" value="0.8" style="width:80px;"></td>
+						<td style="text-align:center;"><input type="number" id="timer2AlarmVol" step="0.1" min="0" max="1" value="0.8" style="width:80px;"></td>
+					</tr>										
+					<tr>
+						<td style="padding:20px 8px 8px 40px;">Проверка короткого сигнала:</td>
+						<td style="text-align:center;"><button id="testTimer1ShortBtn" style="background:#FF9800; color:white; border:none; padding:4px 8px; border-radius:5px; margin:15px 0px 3px 0px; width:85px;">Тест</button></td>
+						<td style="text-align:center;"><button id="testTimer2ShortBtn" style="background:#FF9800; color:white; border:none; padding:4px 8px; border-radius:5px; margin:15px 0px 3px 0px; width:85px;">Тест</button></td>
+					</tr>
+					<tr>
+						<td style="padding:8px 8px 20px 40px;">Проверка финального сигнала:</td>
+						<td style="text-align:center;"><button id="testTimer1LongBtn" style="background:#2196F3; color:white; border:none; padding:4px 8px; border-radius:5px; margin:3px 0px 15px 0px; width:85px;">Тест</button></td>
+						<td style="text-align:center;"><button id="testTimer2LongBtn" style="background:#2196F3; color:white; border:none; padding:4px 8px; border-radius:5px; margin:3px 0px 15px 0px; width:85px;">Тест</button></td>
+					</tr>
+
+				</table>
+				<div style="margin-top:10px; text-align:left;">
+					<button id="saveTimerSettingsBtn" style="background:#4CAF50; color:white; border:none; padding:8px 20px; border-radius:5px;">Сохранить настройки таймеров</button>
+				</div>
+			</div>
+			<div style="padding-left: 10px">
+				<p style="text-align:center; color: #666">
+					<a href="history.html" title="История версий" style="color: #666; text-decoration: none;">Версия 3.2</a>
+				</p>
+			</div>
+            </div> <!-- tab3 -->
+        </div> <!-- content -->
+
+        <script>
+            // Функции для сохранения настроек фолов
+            function saveFoulSettings() {
+                $useFoulsDay = $("#useFoulsDay").prop("checked");
+                $useFoulsNight = $("#useFoulsNight").prop("checked");
+                $maxFoul = parseInt($("#maxFoul").val()) || 5;
+
+                // Обновляем глобальные переменные
+                window.$useFoulsDay = $useFoulsDay;
+                window.$useFoulsNight = $useFoulsNight;
+                window.$maxFoul = $maxFoul;
+
+                showSettingsMessage("Настройки фолов сохранены!");
+
+                if (typeof $Debug !== "undefined" && $Debug) {
+                    console.log("Настройки фолов:", {
+                        day: $useFoulsDay,
+                        night: $useFoulsNight,
+                        maxFoul: $maxFoul,
+                    });
+                }
+            }
+
+            function resetFoulSettings() {
+                $("#useFoulsDay").prop("checked", true);
+                $("#useFoulsNight").prop("checked", true);
+                $("#maxFoul").val(5);
+
+                saveFoulSettings();
+                showSettingsMessage("Настройки фолов сброшены к значениям по умолчанию!");
+            }
+
+            // Загружаем настройки фолов в интерфейс
+            function loadFoulSettingsToUI() {
+                $("#useFoulsDay").prop("checked", window.$useFoulsDay !== false);
+                $("#useFoulsNight").prop("checked", window.$useFoulsNight !== false);
+                $("#maxFoul").val(window.$maxFoul || 5);
+            }
+
+			// ========== НАСТРОЙКИ ТАЙМЕРОВ ==========
+			function loadTimerSettings() {
+				let saved = localStorage.getItem('mafiaTimerSettings');
+				let defaults = {
+					timer1: { enabled: true, duration: 60, beepDuration: 0.5, beepFreq: 600, beepVolume: 0.8, alarmDuration: 1.5, alarmFreq: 1200, alarmVolume: 0.8 },
+					timer2: { enabled: true, duration: 30, beepDuration: 0.5, beepFreq: 600, beepVolume: 0.8, alarmDuration: 1.5, alarmFreq: 1200, alarmVolume: 0.8 }
+				};
+				let settings = defaults;
+				if (saved) {
+					try {
+						let parsed = JSON.parse(saved);
+						settings = { ...defaults, ...parsed };
+					} catch(e) {}
+				}
+				// Применяем к полям ввода
+				$('#timer1Enable').prop('checked', settings.timer1.enabled);
+				$('#timer1Duration').val(settings.timer1.duration);
+				$('#timer1BeepDur').val(settings.timer1.beepDuration);
+				$('#timer1BeepFreq').val(settings.timer1.beepFreq);
+				$('#timer1BeepVol').val(settings.timer1.beepVolume);
+				$('#timer1AlarmDur').val(settings.timer1.alarmDuration);
+				$('#timer1AlarmFreq').val(settings.timer1.alarmFreq);
+				$('#timer1AlarmVol').val(settings.timer1.alarmVolume);
+				
+				$('#timer2Enable').prop('checked', settings.timer2.enabled);
+				$('#timer2Duration').val(settings.timer2.duration);
+				$('#timer2BeepDur').val(settings.timer2.beepDuration);
+				$('#timer2BeepFreq').val(settings.timer2.beepFreq);
+				$('#timer2BeepVol').val(settings.timer2.beepVolume);
+				$('#timer2AlarmDur').val(settings.timer2.alarmDuration);
+				$('#timer2AlarmFreq').val(settings.timer2.alarmFreq);
+				$('#timer2AlarmVol').val(settings.timer2.alarmVolume);
+				
+				// Обновляем глобальные переменные для скрипта fnc.js
+				window.$timerSettings1 = {
+					enabled: settings.timer1.enabled,
+					duration: settings.timer1.duration,
+					beepDuration: settings.timer1.beepDuration,
+					beepFreq: settings.timer1.beepFreq,
+					beepVolume: settings.timer1.beepVolume,
+					alarmDuration: settings.timer1.alarmDuration,
+					alarmFreq: settings.timer1.alarmFreq,
+					alarmVolume: settings.timer1.alarmVolume
+				};
+				window.$timerSettings2 = {
+					enabled: settings.timer2.enabled,
+					duration: settings.timer2.duration,
+					beepDuration: settings.timer2.beepDuration,
+					beepFreq: settings.timer2.beepFreq,
+					beepVolume: settings.timer2.beepVolume,
+					alarmDuration: settings.timer2.alarmDuration,
+					alarmFreq: settings.timer2.alarmFreq,
+					alarmVolume: settings.timer2.alarmVolume
+				};
+				
+				// Обновляем значения по умолчанию в config.js (для совместимости)
+				if (typeof $waitTimerDefault1 !== 'undefined') $waitTimerDefault1 = settings.timer1.duration;
+				if (typeof $waitTimerDefault2 !== 'undefined') $waitTimerDefault2 = settings.timer2.duration;
+			}
+
+			function saveTimerSettings() {
+				let settings = {
+					timer1: {
+						enabled: $('#timer1Enable').is(':checked'),
+						duration: parseInt($('#timer1Duration').val()) || 60,
+						beepDuration: parseFloat($('#timer1BeepDur').val()) || 0.5,
+						beepFreq: parseInt($('#timer1BeepFreq').val()) || 600,
+						beepVolume: parseFloat($('#timer1BeepVol').val()) || 0.8,
+						alarmDuration: parseFloat($('#timer1AlarmDur').val()) || 1.5,
+						alarmFreq: parseInt($('#timer1AlarmFreq').val()) || 1200,
+						alarmVolume: parseFloat($('#timer1AlarmVol').val()) || 0.8
+					},
+					timer2: {
+						enabled: $('#timer2Enable').is(':checked'),
+						duration: parseInt($('#timer2Duration').val()) || 30,
+						beepDuration: parseFloat($('#timer2BeepDur').val()) || 0.5,
+						beepFreq: parseInt($('#timer2BeepFreq').val()) || 600,
+						beepVolume: parseFloat($('#timer2BeepVol').val()) || 0.8,
+						alarmDuration: parseFloat($('#timer2AlarmDur').val()) || 1.5,
+						alarmFreq: parseInt($('#timer2AlarmFreq').val()) || 1200,
+						alarmVolume: parseFloat($('#timer2AlarmVol').val()) || 0.8
+					}
+				};
+				localStorage.setItem('mafiaTimerSettings', JSON.stringify(settings));
+				loadTimerSettings(); // перезагрузит глобальные переменные
+				showSettingsMessage('Настройки таймеров сохранены!');
+			}
+
+			function playTestSound(timerNum) {
+				let settings = timerNum === 1 ? window.$timerSettings1 : window.$timerSettings2;
+				if (!settings.enabled) {
+					showSettingsMessage('Звук для этого таймера отключён!', 'warning');
+					return;
+				}
+				try {
+					let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+					let oscillator = audioCtx.createOscillator();
+					let gainNode = audioCtx.createGain();
+					oscillator.connect(gainNode);
+					gainNode.connect(audioCtx.destination);
+					oscillator.frequency.value = settings.alarmFreq;
+					gainNode.gain.value = settings.alarmVolume;
+					oscillator.start();
+					oscillator.stop(audioCtx.currentTime + settings.alarmDuration);
+					// небольшая задержка, чтобы контекст не закрылся сразу
+					setTimeout(() => { audioCtx.close(); }, (settings.alarmDuration + 0.2) * 1000);
+				} catch(e) {
+					console.log('Web Audio не поддерживается');
+				}
+			}
+
+			$(document).ready(function() {
+				loadTimerSettings();
+				$('#saveTimerSettingsBtn').click(saveTimerSettings);
+				$('#testTimer1Btn').click(() => playTestSound(1));
+				$('#testTimer2Btn').click(() => playTestSound(2));
+			});
+
+
+function playTestBeep(timerNum) {
+    let settings = timerNum === 1 ? window.$timerSettings1 : window.$timerSettings2;
+    if (!settings || !settings.enabled) {
+        showSettingsMessage('Звук для этого таймера отключён!', 'warning');
+        return;
+    }
+    try {
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let oscillator = audioCtx.createOscillator();
+        let gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.frequency.value = settings.beepFreq;
+        gainNode.gain.value = settings.beepVolume;
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + settings.beepDuration);
+        setTimeout(() => { audioCtx.close(); }, (settings.beepDuration + 0.2) * 1000);
+    } catch(e) {
+        console.log('Web Audio не поддерживается');
+    }
+}
+
+function playTestAlarm(timerNum) {
+    let settings = timerNum === 1 ? window.$timerSettings1 : window.$timerSettings2;
+    if (!settings || !settings.enabled) {
+        showSettingsMessage('Звук для этого таймера отключён!', 'warning');
+        return;
+    }
+    try {
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let oscillator = audioCtx.createOscillator();
+        let gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.frequency.value = settings.alarmFreq;
+        gainNode.gain.value = settings.alarmVolume;
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + settings.alarmDuration);
+        setTimeout(() => { audioCtx.close(); }, (settings.alarmDuration + 0.2) * 1000);
+    } catch(e) {
+        console.log('Web Audio не поддерживается');
+    }
+}
+
+$(document).ready(function() {
+    loadTimerSettings();
+    $('#saveTimerSettingsBtn').click(saveTimerSettings);
+    $('#testTimer1ShortBtn').click(() => playTestBeep(1));
+    $('#testTimer1LongBtn').click(() => playTestAlarm(1));
+    $('#testTimer2ShortBtn').click(() => playTestBeep(2));
+    $('#testTimer2LongBtn').click(() => playTestAlarm(2));
+});
+
+
+
+
+            // Дополняем существующую функцию загрузки настроек
+            $(document).ready(function () {
+                // Наблюдаем за изменением вкладок
+                $("#tabs a").click(function () {
+                    if ($(this).prop("title") === "tab3") {
+                        // Загружаем настройки ролей в интерфейс
+                        if (typeof loadRoleSettingsToUI === "function") {
+                            setTimeout(loadRoleSettingsToUI, 100);
+                        }
+                        // Загружаем настройки фолов
+                        loadFoulSettingsToUI();
+                    }
+                });
+
+                // Принудительная загрузка настроек через 1 секунду после загрузки страницы
+                setTimeout(function () {
+                    if (typeof loadRoleSettingsToUI === "function") {
+                        loadRoleSettingsToUI();
+                    }
+                    loadFoulSettingsToUI();
+                }, 1000);
+            });
+        </script>
+
+        <style>
+            #hellopreloader > p {
+                display: none;
+            }
+            #hellopreloader_preload {
+                display: block;
+                position: fixed;
+                z-index: 99999;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                min-width: auto;
+                background: #d6d6d6 url(images/preload.png) center center no-repeat;
+                background-size: 250px;
+            }
+        </style>
+
+        <div id="hellopreloader"><div id="hellopreloader_preload"></div></div>
+
+        <script>
+            var hellopreloader = document.getElementById("hellopreloader_preload");
+            function fadeOutnojquery(el) {
+                el.style.opacity = 1;
+                var interhellopreloader = setInterval(function () {
+                    el.style.opacity = el.style.opacity - 0.05;
+                    if (el.style.opacity <= 0.05) {
+                        clearInterval(interhellopreloader);
+                        hellopreloader.style.display = "none";
+                    }
+                }, 16);
+            }
+            window.onload = function () {
+                setTimeout(function () {
+                    fadeOutnojquery(hellopreloader);
+                }, 1000);
+            };
+        </script>
+
+        <script>
+            // Автоматическое открытие вкладки при загрузке страницы
+            window.addEventListener("load", function () {
+                // Проверяем разные варианты параметров
+                const urlParams = new URLSearchParams(window.location.search);
+                const hash = window.location.hash;
+
+                // Вариант 1: Через hash #info
+                if (hash === "#info") {
+                    document.querySelector('a[title="tab2"]').click();
+                }
+                // Вариант 2: Через параметр ?tab=info
+                else if (urlParams.get("tab") === "info") {
+                    document.querySelector('a[title="tab2"]').click();
+                }
+                // Вариант 3: Через параметр ?open=information
+                else if (urlParams.get("open") === "information") {
+                    document.querySelector('a[title="tab2"]').click();
+                }
+            });
+        </script>
+
+        <script>
+            // Обновляем URL при клике на вкладки
+            document.querySelectorAll("#tabs a").forEach(function (tab) {
+                tab.addEventListener("click", function () {
+                    if (this.title === "tab2") {
+                        window.location.hash = "info";
+                    } else if (this.title === "tab1") {
+                        window.location.hash = "";
+                    }
+                });
+            });
+        </script>
+
+        <script>
+            // Загружаем настройки ролей в интерфейс при открытии вкладки "Настройки"
+            $(document).ready(function () {
+                // Наблюдаем за изменением вкладок
+                $("#tabs a").click(function () {
+                    if ($(this).prop("title") === "tab3") {
+                        // Загружаем настройки ролей в интерфейс
+                        if (typeof loadRoleSettingsToUI === "function") {
+                            setTimeout(loadRoleSettingsToUI, 100);
+                        }
+                    }
+                });
+
+                // Принудительная загрузка настроек через 1 секунду после загрузки страницы
+                setTimeout(function () {
+                    if (typeof loadRoleSettingsToUI === "function") {
+                        loadRoleSettingsToUI();
+                    }
+                }, 1000);
+            });
+
+            // Проверка, что функции определены
+            console.log("Функции доступны:", {
+                saveRoleSettings: typeof saveRoleSettings,
+                resetRoleSettings: typeof resetRoleSettings,
+                loadRoleSettingsToUI: typeof loadRoleSettingsToUI,
+            });
+        </script>
+		
+    </body>
+</html>

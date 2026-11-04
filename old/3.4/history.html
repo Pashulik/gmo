@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История изменений Мафия-онлайн</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 30px 30px 20px;
+        }
+        h1 {
+            font-size: 28px;
+            margin: 0 0 10px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h1 small {
+            font-size: 16px;
+            font-weight: normal;
+            color: #7f8c8d;
+            margin-left: 10px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            margin-top: -5px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 15px;
+        }
+        .version-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .version-item {
+            background: #fafbfc;
+            border-radius: 10px;
+            padding: 20px 25px;
+            border-left: 5px solid #4CAF50;
+            transition: all 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .version-item:hover {
+            background: #f0f4f8;
+            border-left-color: #2e7d32;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .version-item .ver {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2b3c;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .version-item .ver .badge {
+            background: #4CAF50;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+        }
+        .version-item .ver .date {
+            font-size: 14px;
+            font-weight: 400;
+            color: #7f8c8d;
+            margin-left: auto;
+        }
+        .version-item .desc {
+            margin-top: 10px;
+            padding-left: 5px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        .version-item .desc ul {
+            list-style: none;
+            padding: 0;
+            margin: 6px 0 0;
+        }
+        .version-item .desc ul li {
+            padding: 4px 0 4px 28px;
+			background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%234CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>');
+			background-repeat: no-repeat;
+			background-position: 0 8px; /* смещение галочек вниз */
+			padding-left: 26px; /* чтобы текст не наезжал на иконку */
+            background-size: 18px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #95a5a6;
+            border-top: 1px solid #ecf0f1;
+            padding-top: 18px;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            .version-item { padding: 15px; }
+            .version-item .ver { font-size: 18px; flex-wrap: wrap; }
+            .version-item .ver .date { margin-left: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            📜 История версий
+            <a href="../../index.php"><small><nobr>Мафия-онлайн</nobr></small></a>
+        </h1>
+        <div class="subtitle"> <!-- Все изменения в хронологическом порядке (от последней версии к самой первой)--></div>
+
+        <div class="version-list">
+            <!-- Версия 3.4 -->
+            <div class="version-item">
+                <div class="ver">
+					<a href="index.php" style="color: #000;"><span>Версия 3.4</span></a>
+                    <span class="badge">текущая</span>
+                    <span class="date"></span>
+                </div>
+                <div class="desc">
+                    <ul>
+						<li>Если произведены изменения в настройках, но не нажата кнопка сохранения, 
+						то при переходе на другую вкладку появляется предупреждение с предложением 
+						сохранить изменения или отказаться.</li>
+					</ul>
+                </div>
+            </div>
+
+            <!-- Версия 3.3 -->
+            <div class="version-item">
+                <div class="ver">
+					<a href="./old/3.3" style="color: #000;"><span>Версия 3.3</span></a>
+                    <span class="date"></span>
+                </div>
+                <div class="desc">
+					<ul>
+						<li>Возможность вернуться к предыдущему раунду нажатием клавиши <b>Esc</b> или 
+						кнопкой ↩ на экране (кнопка « <b>+</b> » превращается в « ↩ » после начала игры).</li>
+						</ul>
+                </div>
+            </div>
+
+            <!-- Версия 3.2 -->
+            <div class="version-item">
+                <div class="ver">
+					<a href="./old/3.2" style="color: #000;"><span>Версия 3.2</span></a>
+                    <span class="date"></span>
+                </div>
+                <div class="desc">
+                    <ul>
+                        <li>Чтобы доктор, красотка и вор не могли произвести свои повторные действия 
+						две ночи подряд над одним и тем же игроком, соответствующие кнопки сделаны 
+						не активными, также учтено, что себя доктор может лечить только один раз за игру.</li>
+                        <li>Добавлено всплывающее модальное окно победы мирных или мафии с остановкой таймера.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Версия 3.1 -->
+            <div class="version-item">
+                <div class="ver">
+					<a href="./old/3.1" style="color: #000;"><span>Версия 3.1</span></a>
+                    <span class="date"></span>
+                </div>
+                <div class="desc">
+                    <ul>
+                        <li>Настройки таймеров выведены на вкладку «Настройки» с возможностью протестировать звук.</li>
+                        <li>Последний выставленный на голосование игрок отмечается синей галочкой (остальные — зелёные).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Версия 3.0 -->
+            <div class="version-item">
+                <div class="ver">
+					<a href="./old/3.0" style="color: #000;"><span>Версия 3.0</span></a>
+                    <span class="date"></span>
+                </div>
+                <div class="desc">
+                    <ul>
+                        <li>Адаптация кода под jQuery 4.0.0 (ранее использовалась 1.4.2).</li>
+                        <li>Добавлена короткая заставка при загрузке.</li>
+                        <li>Автоматическое добавление 7 игроков при загрузке страницы.</li>
+                        <li>Добавлена роль Шахида, при убийстве которого взрываются его соседи, если они ещё в игре.</li>
+                        <li>Если Вор крадёт роль у Шерифа, кнопки проверки становятся неактивными.</li>
+                        <li>Добавлен таймер продолжительности игры.</li>
+                        <li>Настройки ролей и фолов вынесены в интерфейс.</li>
+                        <li>Возможность ставить несколько фолов за раунд (с подтверждением).</li>
+                        <li>Автоматическое удаление игрока из игры при достижении максимума фолов.</li>
+                        <li>Подтверждение пересдачи ролей и сброса игры.</li>
+                        <li>Добавлено два таймера на 60 и 30 секунд с коротким звуковым сигналом и жёлтой вспышкой 
+							за 10 секунд до окончания времени и длинным звуковым сигналом и красной вспышкой в конце.</li>
+                        <li>Всплывающее окно для указания иммунитета игроку перед первой ночью (до 2-х игроков).</li>
+                        <li>Предупреждение при смене раунда, если не выбраны все обязательные действия.</li>
+                        <li>В дневном раунде добавлены галочки для выдвинутых на голосование игроков и 
+							поле ввода количества голосов.</li>
+                        <li>Отображение общего количества проголосовавших в скобках рядом с текущим количеством игроков.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            © 2026 Gold Mafia Online • Все права защищены
+        </div>
+    </div>
+</body>
+</html>
